@@ -18,56 +18,45 @@ namespace WafiArche.Api.Controllers
         }
 
         [HttpPost]
-        [Route("[action]")]
-        public ActionResult AddProduct(ProductDto productDto)
+        public async Task<ActionResult> CreateProduct(CreateUpdateProductDto productDto)
         {
-            ProductDto product = _productAppService.AddProduct(productDto);
+            ProductDto product = await _productAppService.CreateAsync(productDto);
             return Ok(product);
         }
 
         [HttpGet]
-        [Route("[action]")]
-        public ActionResult GetAllProducts()
+        public async Task< ActionResult> GetProducts([FromQuery] QueryData queryData)
         {
-            IEnumerable<Product> products = _productAppService.GetAllProducts();
-            if (products == null) return NotFound();
+
+            IEnumerable<ProductDto> products = await _productAppService.GetListAsync(queryData);
+            if (products == null) 
+                return NotFound();
+
             return Ok(products);
         }
 
-        [HttpGet]
-        [Route("[action]")]
-        public ActionResult GetProductById(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetProduct(int id)
         {
-            ProductDto product = _productAppService.GetProductById(id);
+            ProductDto product = await _productAppService.GetAsync(id);
 
             if (product == null) return NotFound();
             return Ok(product);
         }
 
-
-        [HttpPut]
-       [Route("[action]/{Id}")]
-        public ActionResult UpdateProduct(int Id,ProductDto productDto)
+        [HttpPut("{id}")]
+        public async Task<ActionResult> UpdateProduct(int id,CreateUpdateProductDto productDto)
         {
-            if (Id != productDto.Id) return BadRequest();
 
-            ProductDto product = _productAppService.UpdateProduct(productDto);
+            ProductDto product = await _productAppService.UpdateAsync(id,productDto);
             return Ok(product);
         }
 
-
-
-        [HttpPost]
-        [Route("[action]")]
-
-        public ActionResult DeleteProduct(int Id)
+        [HttpDelete]
+        public async Task<ActionResult> DeleteProduct(int Id)
         {
-            ProductDto productDto = _productAppService.GetProductById(Id);
-
-            if (productDto == null) return BadRequest();
-
-            _productAppService.DeleteProduct(Id);
-            return Ok();
+            bool isDeleted =  await _productAppService.DeleteAsync(Id);
+            return Ok(isDeleted);
         }
 
 

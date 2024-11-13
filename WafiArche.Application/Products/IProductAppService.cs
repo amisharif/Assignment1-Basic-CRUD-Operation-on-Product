@@ -10,10 +10,10 @@ namespace WafiArche.Application.Products
 {
     public interface IProductAppService
     {
-        ProductDto AddProduct(ProductDto product);
-        ProductDto GetProductById(int id);
-        IEnumerable<Product> GetAllProducts();
-        ProductDto UpdateProduct(ProductDto productDto);
-        bool DeleteProduct(int Id);
+        Task<ProductDto> CreateAsync(CreateUpdateProductDto product);
+        Task<ProductDto> GetAsync(int id);
+        Task<IEnumerable<ProductDto>> GetListAsync(QueryData queryData);
+        Task<ProductDto> UpdateAsync(int id,CreateUpdateProductDto productDto);
+        Task<bool> DeleteAsync(int Id);
     }
 }

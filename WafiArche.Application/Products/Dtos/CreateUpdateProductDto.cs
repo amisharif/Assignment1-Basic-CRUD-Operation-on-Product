@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace WafiArche.Application.Products.Dtos
 {
-    public class ProductDto
+    public class CreateUpdateProductDto
     {
-        public int Id { get; set; }
+
         [Required]
         public string? Name { get; set; }
         [Required]

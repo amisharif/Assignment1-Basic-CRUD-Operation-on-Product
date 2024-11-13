@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WafiArche.Application.Products.Dtos;
+using WafiArche.Application.Products.Pagination;
 using WafiArche.Domain.Products;
 using WafiArche.EntityFrameworkCore.Data;
 
@@ -19,49 +21,64 @@ namespace WafiArche.Application.Products
             _context = context;
             _mapper = mapper;
         }
-        public ProductDto AddProduct(ProductDto productDto)
+
+        public async Task<ProductDto> CreateAsync(CreateUpdateProductDto productDto)
         {
-            
             Product product = _mapper.Map<Product>(productDto);
-            _context.Add(product);
+            await _context.AddAsync(product);
             _context.SaveChanges();
-            return productDto;
-        }
 
+            return _mapper.Map<ProductDto>(product);
+        }
       
-
-        public IEnumerable<Product> GetAllProducts()
+        public async Task<IEnumerable<ProductDto>> GetListAsync(QueryData queryData)
         {
-            IEnumerable<Product> products = _context.Products.ToList();
 
-            return products;
+            IQueryable<Product>productList = _context.Products;
 
+            PaginatedList<Product>products = await GetPaginatedList(productList,queryData);
+           
+            return _mapper.Map<List<ProductDto>>(products);
         }
 
-        public ProductDto GetProductById(int id)
+        public async Task<ProductDto> GetAsync(int id)
         {
-            Product? product = _context.Products.FirstOrDefault( prod => prod.Id == id);
+            Product? product = await _context.Products.FirstOrDefaultAsync( prod => prod.Id == id);
+            return _mapper.Map<ProductDto>(product);
+        }
+        public async Task<ProductDto> UpdateAsync(int id, CreateUpdateProductDto productDto)
+        {
+            Product? product = await _context.Products.FirstOrDefaultAsync(prod => prod.Id == id);
+
+            if (product == null)
+                throw new Exception("Product not found");
+
+            _mapper.Map(productDto, product);
+
+            await _context.SaveChangesAsync();
             return _mapper.Map<ProductDto>(product);
         }
 
-        public bool DeleteProduct(int Id)
+        
+        public async Task<bool> DeleteAsync(int Id)
         {
             Product? product = _context.Products.FirstOrDefault(prod => prod.Id == Id);
-            if (product == null) return false;
+            if (product == null)
+                throw new Exception("Product not found");
+
             _context.Remove(product);
-            _context.SaveChanges();
-            return true;
+            return await _context.SaveChangesAsync()>1;
         }
 
-        public ProductDto UpdateProduct(ProductDto productDto)
+       
+
+
+        private async Task<PaginatedList<Product>> GetPaginatedList(IQueryable<Product>products,QueryData query)
         {
-            Product? product = _context.Products.FirstOrDefault(prod =>prod.Id== productDto.Id);
+            PaginatedList<Product> list = await PaginatedList<Product>.CreateAsync(products, query.PageIndex, query.PageSize);
 
-            product.Name = productDto.Name;
-            product.Price = productDto.Price;
-
-            _context.SaveChanges();
-            return _mapper.Map<ProductDto>(product);
+            return list;
         }
+
     }
 }

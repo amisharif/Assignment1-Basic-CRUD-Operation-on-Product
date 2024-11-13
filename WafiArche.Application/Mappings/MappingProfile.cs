@@ -13,8 +13,8 @@ namespace WafiArche.Application.Mappings
     {
         public MappingProfile()
         {
+            CreateMap<CreateUpdateProductDto, Product>().ReverseMap();
             CreateMap<ProductDto, Product>().ReverseMap();
-
         }
     }
 }

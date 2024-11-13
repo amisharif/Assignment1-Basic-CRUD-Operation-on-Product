@@ -14,6 +14,8 @@ namespace WafiArche.Domain.Products
         [Required]
         public string? Name { get; set; }
         [Required]
-        public decimal? Price { get; set; }
+        public string? Code { get; set; }
+        public decimal? PurchasePrice { get; set; }
+        public decimal? SalePrice { get; set; }
     }
 }
